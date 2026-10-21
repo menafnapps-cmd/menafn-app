@@ -16,6 +16,8 @@ workflows:
           flutter config --no-enable-swift-package-manager
       - name: Set up code signing settings on Xcode project
         script: |
+          # تهيئة التوقيع التلقائي وسحب البروفايل من أبل
+          app-store-connect fetch-signing-files com.menafn2024.menafn2024 --type APP_STORE
           xcode-project use-profiles
       - name: Get Flutter packages
         script: |
