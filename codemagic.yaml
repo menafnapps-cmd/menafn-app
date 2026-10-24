@@ -26,10 +26,3 @@ workflows:
           xcode-project build-ipa --workspace ios/Runner.xcworkspace --scheme Runner --archive-flags="PROVISIONING_PROFILE_SPECIFIER='MENAFN AppStore Profile 2026'"
     artifacts:
       - build/ios/ipa/*.ipa
-    publishing:
-      email:
-        recipients:
-          - tech@menafn.com
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
