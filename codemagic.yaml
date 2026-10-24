@@ -14,14 +14,15 @@ workflows:
       - name: Disable Swift Package Manager
         script: |
           flutter config --no-enable-swift-package-manager
-      - name: Update bundle identifier to match App Store profile
+      - name: Update bundle identifier and deployment target
         script: |
           python3 -c "
-          import glob
+          import glob, re
           for path in glob.glob('ios/Runner.xcodeproj/project.pbxproj'):
               with open(path, 'r') as f:
                   content = f.read()
               content = content.replace('PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn;', 'PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn-newsfeed-ios-app;')
+              content = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = \d+\.\d+;', 'IPHONEOS_DEPLOYMENT_TARGET = 15.0;', content)
               with open(path, 'w') as f:
                   f.write(content)
           "
