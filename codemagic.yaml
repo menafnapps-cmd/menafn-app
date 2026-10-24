@@ -32,8 +32,12 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter pub get
+      - name: Clean build cache
+        script: |
+          flutter clean
+          flutter pub get
       - name: Build iOS IPA
         script: |
-          xcode-project build-ipa --workspace ios/Runner.xcworkspace --scheme Runner
+          flutter build ipa --release
     artifacts:
       - build/ios/ipa/*.ipa
