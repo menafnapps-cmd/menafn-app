@@ -16,7 +16,6 @@ workflows:
           flutter config --no-enable-swift-package-manager
       - name: Set up code signing files
         script: |
-          app-store-connect fetch-signing-files com.menafn.menafn-newsfeed-ios-app --type APP_STORE --create
           xcode-project use-profiles
       - name: Get Flutter packages
         script: |
@@ -30,4 +29,3 @@ workflows:
       email:
         recipients:
           - tech@menafn.com
-          # test
