@@ -22,6 +22,6 @@ workflows:
           flutter pub get
       - name: Build iOS IPA
         script: |
-          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
+          xcode-project build-ipa --workspace ios/Runner.xcworkspace --scheme Runner
     artifacts:
       - build/ios/ipa/*.ipa
