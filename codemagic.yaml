@@ -16,6 +16,12 @@ workflows:
       - name: Disable Swift Package Manager
         script: |
           flutter config --no-enable-swift-package-manager
+      - name: Clean Flutter project cache
+        script: |
+          flutter clean
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
       - name: Update bundle identifier and deployment target in Xcode
         script: |
           python3 -c "
@@ -31,9 +37,6 @@ workflows:
       - name: Set up code signing files
         script: |
           xcode-project use-profiles
-      - name: Get Flutter packages
-        script: |
-          flutter pub get
       - name: Build iOS IPA
         script: |
           flutter build ipa --release
