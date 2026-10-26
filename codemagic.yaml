@@ -14,7 +14,7 @@ workflows:
       - name: Disable Swift Package Manager
         script: |
           flutter config --no-enable-swift-package-manager
-      - name: Update bundle identifier, deployment target, and build number
+      - name: Update bundle identifier, deployment target, and version 4.3
         script: |
           python3 -c "
           import glob, re
@@ -27,12 +27,12 @@ workflows:
               with open(path, 'w') as f:
                   f.write(content)
 
-          # تحديث رقم البناء (Build Number) في Info.plist لضمان قبول أبل له
+          # تحديث رقم الإصدار إلى 4.3 ورقم البناء إلى 54 في Info.plist
           for path in glob.glob('ios/Runner/Info.plist'):
               with open(path, 'r') as f:
                   content = f.read()
-              # رفع رقم البناء آلياً أو تثبيته برقم جديد متقدم
-              content = re.sub(r'<key>CFBundleVersion</key>\s*<string>.*?</string>', '<key>CFBundleVersion</key><string>53</string>', content)
+              content = re.sub(r'<key>CFBundleShortVersionString</key>\s*<string>.*?</string>', '<key>CFBundleShortVersionString</key><string>4.3</string>', content)
+              content = re.sub(r'<key>CFBundleVersion</key>\s*<string>.*?</string>', '<key>CFBundleVersion</key><string>54</string>', content)
               with open(path, 'w') as f:
                   f.write(content)
           "
