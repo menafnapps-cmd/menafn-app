@@ -1,39 +1,43 @@
 workflows:
   default-workflow:
-   name: Default Workflow
-   max_build_duration: 60
-   instance_type: mac_mini_m1
-   environment:
-     flutter: stable
-     xcode: latest
-     cocoapods: default
-     ios_signing:
-       distribution_type: app_store
-       bundle_identifier: com.menafn.menafn-newsfeed-ios-app
-   scripts:
-     - name: Disable Swift Package Manager
-       script: |
-         flutter config --no-enable-swift-package-manager
-     - name: Update bundle identifier and deployment target in Xcode
-       script: |
-         python3 -c "
-         import glob, re
-         for path in glob.glob('ios/Runner.xcodeproj/project.pbxproj'):
-             with open(path, 'r') as f:
-                 content = f.read()
-             content = content.replace('PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn;', 'PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn-newsfeed-ios-app;')
-             content = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = \d+\.\d+;', 'IPHONEOS_DEPLOYMENT_TARGET = 15.0;', content)
-             with open(path, 'w') as f:
-                 f.write(content)
-         "
-     - name: Set up code signing files
-       script: |
-         xcode-project use-profiles
-     - name: Get Flutter packages
-       script: |
-         flutter pub get
-     - name: Build iOS IPA
-       script: |
-         flutter build ipa --release
-   artifacts:
-     - build/ios/ipa/*.ipa
+    name: Default Workflow
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.menafn.menafn-newsfeed-ios-app
+      vars:
+        APP_STORE_APPLE_ID: "1255148674"
+    scripts:
+      - name: Disable Swift Package Manager
+        script: |
+          flutter config --no-enable-swift-package-manager
+      - name: Update bundle identifier and deployment target in Xcode
+        script: |
+          python3 -c "
+          import glob, re
+          for path in glob.glob('ios/Runner.xcodeproj/project.pbxproj'):
+              with open(path, 'r') as f:
+                  content = f.read()
+              content = content.replace('PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn;', 'PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn-newsfeed-ios-app;')
+              content = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = \d+\.\d+;', 'IPHONEOS_DEPLOYMENT_TARGET = 15.0;', content)
+              with open(path, 'w') as f:
+                  f.write(content)
+          "
+      - name: Set up code signing files
+        script: |
+          xcode-project use-profiles
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Build iOS IPA
+        script: |
+          flutter build ipa --release
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
