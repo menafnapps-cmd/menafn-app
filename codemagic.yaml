@@ -14,15 +14,25 @@ workflows:
       - name: Disable Swift Package Manager
         script: |
           flutter config --no-enable-swift-package-manager
-      - name: Update bundle identifier and deployment target
+      - name: Update bundle identifier, deployment target, and build number
         script: |
           python3 -c "
           import glob, re
+          # تحديث ملفات الأكسارك (الـ Bundle ID والـ Deployment Target)
           for path in glob.glob('ios/Runner.xcodeproj/project.pbxproj'):
               with open(path, 'r') as f:
                   content = f.read()
               content = content.replace('PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn;', 'PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn-newsfeed-ios-app;')
               content = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = \d+\.\d+;', 'IPHONEOS_DEPLOYMENT_TARGET = 15.0;', content)
+              with open(path, 'w') as f:
+                  f.write(content)
+
+          # تحديث رقم البناء (Build Number) في Info.plist لضمان قبول أبل له
+          for path in glob.glob('ios/Runner/Info.plist'):
+              with open(path, 'r') as f:
+                  content = f.read()
+              # رفع رقم البناء آلياً أو تثبيته برقم جديد متقدم
+              content = re.sub(r'<key>CFBundleVersion</key>\s*<string>.*?</string>', '<key>CFBundleVersion</key><string>53</string>', content)
               with open(path, 'w') as f:
                   f.write(content)
           "
