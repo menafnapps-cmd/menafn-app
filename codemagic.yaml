@@ -13,9 +13,6 @@ workflows:
       vars:
         APP_STORE_APPLE_ID: "1255148674"
     scripts:
-      - name: Disable Swift Package Manager
-        script: |
-          flutter config --no-enable-swift-package-manager
       - name: Clean Flutter project cache
         script: |
           flutter clean
