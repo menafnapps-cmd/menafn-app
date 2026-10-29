@@ -24,18 +24,26 @@ workflows:
           python3 -c "
           import glob, re
           
-          # 1. Update bundle ID and deployment target
+          # 1. Update bundle ID and deployment target globally across all project configurations
           for path in glob.glob('ios/Runner.xcodeproj/project.pbxproj'):
               with open(path, 'r') as f:
                   content = f.read()
-              content = content.replace('PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn;', 'PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn-newsfeed-ios-app;')
+              # استبدال شامل لأي ظهور للمعرف القديم
+              content = content.replace('com.menafn.menafn', 'com.menafn.menafn-newsfeed-ios-app')
               content = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = \d+\.\d+;', 'IPHONEOS_DEPLOYMENT_TARGET = 15.0;', content)
               
-              # If RunnerTests is missing from pbxproj, add a dummy reference or strip it from Podfile
               with open(path, 'w') as f:
                   f.write(content)
 
-          # 2. Alternatively, remove RunnerTests target cleanly from Podfile so it never looks for it
+          # 2. Also update Info.plist files just in case bundle identifier is hardcoded there
+          for path in glob.glob('ios/Runner/Info.plist'):
+              with open(path, 'r') as f:
+                  content = f.read()
+              content = content.replace('com.menafn.menafn', 'com.menafn.menafn-newsfeed-ios-app')
+              with open(path, 'w') as f:
+                  f.write(content)
+
+          # 3. Remove RunnerTests target cleanly from Podfile
           for path in glob.glob('ios/Podfile'):
               with open(path, 'r') as f:
                   lines = f.readlines()
