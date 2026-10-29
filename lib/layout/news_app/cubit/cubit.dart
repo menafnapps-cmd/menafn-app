@@ -14,7 +14,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sqflite/sqflite.dart';
 import '../news_layout.dart';
 import 'package:menafn/modules/ContactUs/ContactUs.dart';
-
+// Aya Omar
 class NewsCubit extends Cubit<NewsStates> {
   NewsCubit() : super(InitialState());
   static NewsCubit get(context) => BlocProvider.of(context);
