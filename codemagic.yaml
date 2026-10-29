@@ -24,46 +24,36 @@ workflows:
           python3 -c "
           import glob, re
           
-          # 1. Update bundle ID and deployment target globally across all project configurations
+          # 1. Update bundle ID in project.pbxproj
           for path in glob.glob('ios/Runner.xcodeproj/project.pbxproj'):
               with open(path, 'r') as f:
                   content = f.read()
               content = content.replace('com.menafn.menafn', 'com.menafn.menafn-newsfeed-ios-app')
               content = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = \d+\.\d+;', 'IPHONEOS_DEPLOYMENT_TARGET = 15.0;', content)
-              
               with open(path, 'w') as f:
                   f.write(content)
 
-          # 2. Force explicit bundle identifier in Info.plist to override any old values
+          # 2. Update Flutter generated xcconfig files which override bundle ids
+          for path in glob.glob('ios/Flutter/*.xcconfig'):
+              with open(path, 'r') as f:
+                  content = f.read()
+              content = content.replace('com.menafn.menafn', 'com.menafn.menafn-newsfeed-ios-app')
+              with open(path, 'w') as f:
+                  f.write(content)
+
+          # 3. Force explicit bundle identifier in Info.plist
           for path in glob.glob('ios/Runner/Info.plist'):
               with open(path, 'r') as f:
                   content = f.read()
               content = content.replace('com.menafn.menafn', 'com.menafn.menafn-newsfeed-ios-app')
-              
-              # If CFBundleIdentifier bundle key exists, ensure it's explicitly set
-              if '<key>CFBundleIdentifier</key>' not in content:
-                  content = content.replace('<dict>', '<dict>\n\t<key>CFBundleIdentifier</key>\n\t<string>com.menafn.menafn-newsfeed-ios-app</string>')
-              
               with open(path, 'w') as f:
                   f.write(content)
 
-          # 3. Remove RunnerTests target cleanly from Podfile
+          # 4. Remove RunnerTests target cleanly from Podfile
           for path in glob.glob('ios/Podfile'):
               with open(path, 'r') as f:
                   lines = f.readlines()
-              
-              new_lines = []
-              skip = False
-              for line in lines:
-                  if \"target 'RunnerTests' do\" in line:
-                      skip = True
-                      continue
-                  if skip and 'end' in line:
-                      skip = False
-                      continue
-                  if not skip:
-                      new_lines.append(line)
-                      
+              new_lines = [line for line in lines if \"target 'RunnerTests' do\" not in line]
               with open(path, 'w') as f:
                   f.writelines(new_lines)
           "
@@ -78,4 +68,4 @@ workflows:
           xcode-project use-profiles
       - name: Build iOS IPA
         script: |
-          flutter build ipa --release --no-pub
+          flutter build ipa --release --no-pub --dart-define=BUNDLE_ID=com.menafn.menafn-newsfeed-ios-app
