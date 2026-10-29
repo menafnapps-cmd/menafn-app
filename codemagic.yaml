@@ -16,27 +16,54 @@ workflows:
       - name: Disable Swift Package Manager to fix CocoaPods conflict
         script: |
           flutter config --no-enable-swift-package-manager
-      - name: Clean Flutter project cache
-        script: |
-          flutter clean
       - name: Get Flutter packages
         script: |
           flutter pub get
-      - name: Update bundle identifier and deployment target in Xcode
+      - name: Fix Xcode Project and Podfile targets
         script: |
           python3 -c "
           import glob, re
+          
+          # 1. Update bundle ID and deployment target
           for path in glob.glob('ios/Runner.xcodeproj/project.pbxproj'):
               with open(path, 'r') as f:
                   content = f.read()
               content = content.replace('PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn;', 'PRODUCT_BUNDLE_IDENTIFIER = com.menafn.menafn-newsfeed-ios-app;')
               content = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = \d+\.\d+;', 'IPHONEOS_DEPLOYMENT_TARGET = 15.0;', content)
+              
+              # If RunnerTests is missing from pbxproj, add a dummy reference or strip it from Podfile
               with open(path, 'w') as f:
                   f.write(content)
+
+          # 2. Alternatively, remove RunnerTests target cleanly from Podfile so it never looks for it
+          for path in glob.glob('ios/Podfile'):
+              with open(path, 'r') as f:
+                  lines = f.readlines()
+              
+              new_lines = []
+              skip = False
+              for line in lines:
+                  if \"target 'RunnerTests' do\" in line:
+                      skip = True
+                      continue
+                  if skip and 'end' in line:
+                      skip = False
+                      continue
+                  if not skip:
+                      new_lines.append(line)
+                      
+              with open(path, 'w') as f:
+                  f.writelines(new_lines)
           "
+      - name: Install Pods explicitly
+        script: |
+          cd ios
+          rm -rf Pods Podfile.lock .symlinks
+          pod install --repo-update
+          cd ..
       - name: Set up code signing files
         script: |
           xcode-project use-profiles
       - name: Build iOS IPA
         script: |
-          flutter build ipa --release
+          flutter build ipa --release --no-pub
