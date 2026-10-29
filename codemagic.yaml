@@ -28,18 +28,22 @@ workflows:
           for path in glob.glob('ios/Runner.xcodeproj/project.pbxproj'):
               with open(path, 'r') as f:
                   content = f.read()
-              # استبدال شامل لأي ظهور للمعرف القديم
               content = content.replace('com.menafn.menafn', 'com.menafn.menafn-newsfeed-ios-app')
               content = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = \d+\.\d+;', 'IPHONEOS_DEPLOYMENT_TARGET = 15.0;', content)
               
               with open(path, 'w') as f:
                   f.write(content)
 
-          # 2. Also update Info.plist files just in case bundle identifier is hardcoded there
+          # 2. Force explicit bundle identifier in Info.plist to override any old values
           for path in glob.glob('ios/Runner/Info.plist'):
               with open(path, 'r') as f:
                   content = f.read()
               content = content.replace('com.menafn.menafn', 'com.menafn.menafn-newsfeed-ios-app')
+              
+              # If CFBundleIdentifier bundle key exists, ensure it's explicitly set
+              if '<key>CFBundleIdentifier</key>' not in content:
+                  content = content.replace('<dict>', '<dict>\n\t<key>CFBundleIdentifier</key>\n\t<string>com.menafn.menafn-newsfeed-ios-app</string>')
+              
               with open(path, 'w') as f:
                   f.write(content)
 
