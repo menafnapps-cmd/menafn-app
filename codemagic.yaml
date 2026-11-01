@@ -71,4 +71,7 @@ workflows:
           flutter build ipa --release --no-pub --dart-define=BUNDLE_ID=com.menafn.menafn-newsfeed-ios-app
     publishing:
       app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: "6C4XD9Y3FZ"
+        issuer_id: "69a6de92-f802-47e3-e053-5b8c7c11a4d1"
         submit_to_testflight: true
