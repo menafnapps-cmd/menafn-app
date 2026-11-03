@@ -21,42 +21,7 @@ workflows:
           flutter pub get
       - name: Fix Xcode Project and Podfile targets
         script: |
-          python3 -c "
-          import glob, re
-          
-          # 1. Update bundle ID in project.pbxproj
-          for path in glob.glob('ios/Runner.xcodeproj/project.pbxproj'):
-              with open(path, 'r') as f:
-                  content = f.read()
-              content = content.replace('com.menafn.menafn', 'com.menafn.menafn-newsfeed-ios-app')
-              content = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = \d+\.\d+;', 'IPHONEOS_DEPLOYMENT_TARGET = 15.0;', content)
-              with open(path, 'w') as f:
-                  f.write(content)
-
-          # 2. Update Flutter generated xcconfig files which override bundle ids
-          for path in glob.glob('ios/Flutter/*.xcconfig'):
-              with open(path, 'r') as f:
-                  content = f.read()
-              content = content.replace('com.menafn.menafn', 'com.menafn.menafn-newsfeed-ios-app')
-              with open(path, 'w') as f:
-                  f.write(content)
-
-          # 3. Force explicit bundle identifier in Info.plist
-          for path in glob.glob('ios/Runner/Info.plist'):
-              with open(path, 'r') as f:
-                  content = f.read()
-              content = content.replace('com.menafn.menafn', 'com.menafn.menafn-newsfeed-ios-app')
-              with open(path, 'w') as f:
-                  f.write(content)
-
-          # 4. Remove RunnerTests target cleanly from Podfile
-          for path in glob.glob('ios/Podfile'):
-              with open(path, 'r') as f:
-                  lines = f.readlines()
-              new_lines = [line for line in lines if \"target 'RunnerTests' do\" not in line]
-              with open(path, 'w') as f:
-                  f.writelines(new_lines)
-          "
+          python3 -c "..."
       - name: Install Pods explicitly
         script: |
           cd ios
@@ -66,6 +31,20 @@ workflows:
       - name: Set up code signing files
         script: |
           xcode-project use-profiles
+
+      # --- 📍 مكان وضع الكود الجديد هنا قبل بناء ملف الـ IPA ---
+      - name: Create App Store Connect API Key file
+        script: |
+          mkdir -p ~/.private_keys
+          cat << 'EOF' > ~/.private_keys/AuthKey_6C4XD9Y3FZ.p8
+          -----BEGIN PRIVATE KEY-----
+          MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgsCONgwjLEH6A0U3J
+          rb8iyVYN8GXn3Wuh/1z+bXUKqzugCgYIKoZIzj0DAQehRANCAAR+2wYZ/nyYjo2Q
+          mzFLN838tGP2mGIJcpuxgbyk2fjs0yTi3T6NqnT9RrraxxDXyjQLuXc+TcQUiIuX
+          wiMpsPgR
+          -----END PRIVATE KEY-----
+          EOF
+
       - name: Build iOS IPA
         script: |
           flutter build ipa --release --no-pub --dart-define=BUNDLE_ID=com.menafn.menafn-newsfeed-ios-app --export-options-plist=/Users/builder/export_options.plist
@@ -75,7 +54,6 @@ workflows:
       - flutter_drive.log
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_PUBLISHER_PRIVATE_KEY
         key_id: "6C4XD9Y3FZ"
         issuer_id: "69a6de92-f802-47e3-e053-5b8c7c11a4d1"
         submit_to_testflight: true
